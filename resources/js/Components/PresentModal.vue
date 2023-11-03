@@ -38,6 +38,19 @@
                             {{ this.errorGraph }}
                         </div>
                     </div>
+                    <div class="mb-2 px-2">
+                        <label class="mb-2 block">Теги</label>
+                        <div class="flex flex-wrap">
+                            <p v-for="(tag, index) in tags" :key="index" class="item_tag mr-2 mt-2" @click="deleteItemTag(index)">#{{tag.title}}</p>
+                        </div>
+                        <div :class="['flex items-center', tags.length > 0 ? 'mt-2' : '']">
+                            <input type="text" v-model="tagItem" class="input w-4/6" @input="inputTag" placeholder="Теги (#house)">
+                            <button class="btn_tag" :class="{'disabled': tagItem.length < 2}" @click="addTag(tagItem)">Добавить тег</button>
+                        </div>
+                        <ul class="scroll_tags">
+                            <li v-for="item in filteredTags" class="li_item" @click="addTag(item)">#{{ item.title }}</li>
+                        </ul>
+                    </div>
                     <div class="scroll2 mb-4 px-2">
                         <a href="#" @click.prevent="openModal = true" :class="['block overflow-hidden bg-gray-200 rounded-lg', !imageUrl ? 'h-40' : '']">
                             <div v-if="!imageUrl" class="flex justify-center items-center h-40">
@@ -77,8 +90,7 @@ export default {
         editingItem: {
             type: Object,
             default: null
-        }
-
+        },
     },
     emits:['update:open', 'result'],
     data() {
@@ -91,6 +103,7 @@ export default {
             title: null,
             description: null,
             imageUrl: null,
+            tags: [],
 
             editId: null,
 
@@ -100,7 +113,25 @@ export default {
 
             openModal: false,
 
-            itemHeight: null
+            itemHeight: null,
+
+            allTags: [],
+            tagItem: ''
+        }
+    },
+    computed: {
+        filteredTags() {
+            let items = [];
+            if(this.tagItem !== ''){
+                let itemSearch = '';
+                if(this.tagItem.includes('#')) {
+                    itemSearch = this.tagItem.replace('#', '');
+                }else{
+                    itemSearch = this.tagItem;
+                }
+                items = this.allTags.filter(item => item.title.toLowerCase().includes(itemSearch.toLowerCase()) && !this.tags.includes(item))
+            }
+            return items;
         }
     },
     methods: {
@@ -145,6 +176,7 @@ export default {
                     'link': this.url,
                     'description': this.description ?? null,
                     'image': this.imageUrl ?? null,
+                    'tags': this.tags
                 })
                     .then(res => {
                         this.$emit('result', res.data)
@@ -164,7 +196,8 @@ export default {
                 'link': this.url,
                 'description': this.description,
                 'image': this.imageUrl,
-                'id': this.editId
+                'id': this.editId,
+                'tags': this.tags
             })
                 .then(res => {Object.keys(res.data).length > 0
                     ? (this.$emit('update', res.data), this.close())
@@ -176,6 +209,40 @@ export default {
                 })
 
         },
+
+        getAllTags(){
+            axios.get('/tags')
+                .then(res => {
+                    this.allTags = res.data.filter(el => !this.tags.includes(el))
+                })
+                .catch(err => console.log(err))
+
+        },
+        addTag(item){
+            console.log(typeof(item))
+
+            if(typeof(item) == 'object'){
+                this.tags.push(item);
+                this.tagItem = '';
+            }else{
+                let elem = '';
+                if(this.tagItem.includes('#')) {
+                    elem = this.tagItem.replace(/(?:^|\s)\S/g, function(match) {
+                        return match.toUpperCase();
+                    }).replace(/\s/g, "").replace('#', '');
+                }else{
+                    elem = this.tagItem.replace(/(?:^|\s)\S/g, function(match) {
+                        return match.toUpperCase();
+                    }).replace(/\s/g, "");
+                }
+                this.tags.push({id: null, title:elem});
+                this.tagItem = '';
+                console.log('asas', this.tags)
+            }
+        },
+        deleteItemTag(inx){
+            this.tags.splice(inx, 1);
+        }
     },
     watch: {
         open: function (){
@@ -183,11 +250,6 @@ export default {
             if(this.open === true){
                 this.innerHeight()
             }
-            // if(this.open === true){
-            //     document.body.classList.add("overflow-hidden");
-            // }else{
-            //     document.body.classList.remove("overflow-hidden");
-            // }
         },
         editingItem: function (){
           if(this.editingItem !== null){
@@ -196,6 +258,7 @@ export default {
               this.title = this.editingItem.title
               this.description = this.editingItem.description
               this.imageUrl = this.editingItem.imageUrl
+              this.tags = this.editingItem.tags
           }
         },
         dialog: function (){
@@ -209,10 +272,13 @@ export default {
                 this.errorImage = null
                 this.errorStore = null
                 this.editId = null
+                this.tagItem = ''
+            }else{
+                this.getAllTags()
             }
         },
 
-    }
+    },
 }
 </script>
 
@@ -258,6 +324,49 @@ export default {
     pointer-events: none;
     opacity: 0.3;
 }
+.btn_tag {
+    background: #9b5bde;
+    color: white;
+    height: 40px;
+    padding: 5px 7px;
+    border-radius: 10px;
+    width: 40%;
+    margin: 4px  0px 10px 5px;
+}
+.btn_tag.disabled{
+    background: #c1a3ea;
+    cursor: none;
+    pointer-events: none;
+}
+ul {
+    margin: 0 10px 10px;
+}
+.li_item{
+    background-color: #3fb37f;
+    color: white;
+    border-radius: 10px;
+    padding: 5px;
+    text-align: center;
+    transition: .5s all;
+    border: 1px solid #3fb37f;
+    cursor: pointer;
+    margin-top: 5px;
+}
+.li_item:hover{
+    background-color: #f5f3f3;
+    color: #3fb37f;
+}
+.item_tag{
+    color: rgb(16 185 129);
+    padding: 2px 5px;
+    border: 1px solid rgb(16 185 129);
+    cursor: pointer;
+    border-radius: 5px;
+}
+.item_tag:hover {
+    color: rgb(234 88 12);
+    border: 1px solid rgb(234 88 12);
+}
 /* dialog  */
 .scroll {
     height: 550px;
@@ -267,6 +376,12 @@ export default {
     height: 250px;
     overflow: auto;
 }
+
+.scroll_tags{
+    max-height: 100px;
+    overflow: auto;
+}
+
 
 
 /*  loading */
@@ -322,7 +437,7 @@ export default {
     .dialog{
         top: 10%;
     }
-    label {
+    label, .btn_tag {
         font-size: 14px;
     }
 }

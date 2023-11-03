@@ -1,6 +1,6 @@
 <template>
-        <div class="bg-animation" ref="bg">
-            <div class="w-1/2 bg-gray-100 items-center mx-auto shadow-gray-900/50 rounded-lg content_glaw">
+        <div class="bg-animation" ref="bg" :style="{height: `${height}px`}">
+            <div  class="w-1/2 bg-gray-100 items-center mx-auto shadow-gray-900/50 rounded-lg content_glaw">
                 <header v-if="$slots.header">
                     <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex items-center justify-between border border-black items">
                         <slot name="header"/>
@@ -59,8 +59,19 @@
 </template>
 
 <script setup>
+import {onMounted, ref} from "vue";
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
+
+const height = ref(0);
+function innerHeight() {
+    let heig = document.body.getElementsByClassName('content_glaw')[0].clientHeight;
+    height.value = heig < window.innerHeight ? window.innerHeight : heig + 40;
+    console.log(heig, window.innerHeight)
+}
+onMounted(() => {
+    innerHeight()
+})
 </script>
 
 <style scoped>
@@ -88,8 +99,9 @@ import DropdownLink from '@/Components/DropdownLink.vue';
     background-image: url('../../img/page_user.jpeg'); /* Фоновая картинка */
     background-repeat: no-repeat;
     background-size: cover;
-    min-height: 100vh;
-    height: content-box;
+    background-position: center center;
+    min-height: 130vh;
+    /*height: content-box;*/
 }
 .items {
     align-items: center;
@@ -108,17 +120,23 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 }
 @media (max-width: 675px) {
     .content_glaw{
-        width: 300px;
+        width: 370px;
     }
     .hidden {
         display: block;
         margin-top: 15px;
+    }
+    .bg-animation{
+        padding: 40px 20px;
     }
 }
 @media (max-width: 400px) {
     .bg-animation {
         padding: 20px 10px;
         font-size: 26px;
+    }
+    .content_glaw{
+        width: 300px;
     }
 }
 
@@ -154,27 +172,27 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 }
 @keyframes bg-animation_phone {
     0% {
-        background-size: 170%;
+        background-size: 250%;
         background-position: 3% 3%
     }
     20% {
-        background-size: 173%;
+        background-size: 253%;
         background-position: 0% 6%;
     }
     40% {
-        background-size: 176%;
+        background-size: 256%;
         background-position: 3% 9%;
     }
     60% {
-        background-size: 176%;
+        background-size: 256%;
         background-position: 6% 10%;
     }
     80% {
-        background-size: 173%;
+        background-size: 253%;
         background-position: 3% 6%;
     }
     100% {
-        background-size: 170%;
+        background-size: 250%;
         background-position: 3% 3%
     }
 }

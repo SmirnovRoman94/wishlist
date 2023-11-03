@@ -8,6 +8,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 
 const form = useForm({
     name: '',
+    surname: '',
     email: '',
     password: '',
     nick: '',
@@ -15,6 +16,7 @@ const form = useForm({
 });
 
 const submit = () => {
+    form.nick = !form.nick.includes('@') ? '@' + form.nick : form.nick;
     form.post(route('register'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
@@ -41,6 +43,23 @@ const submit = () => {
                 />
 
                 <InputError class="mt-2" :message="form.errors.name" />
+            </div>
+
+            <div>
+                <InputLabel for="name" value="Surname" />
+
+                <TextInput
+                    id="surname"
+                    type="text"
+                    class="mt-1 block w-full"
+                    v-model="form.surname"
+                    required
+                    autofocus
+                    :placeholder="'Иванов'"
+                    autocomplete="surname"
+                />
+
+                <InputError class="mt-2" :message="form.errors.surname" />
             </div>
 
             <div class="mt-4">

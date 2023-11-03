@@ -15,8 +15,8 @@
                         <div class="content_item ml-8 sm:w-3/4 w-full">
                             <p class="text-xl font-medium">{{user.name}}</p>
                             <p class="italic text-base text-gray-400">{{user.nick}}</p>
-                            <p class="italic text-base">{{user.birthday}}</p>
-                            <div class="py-2 text-justify" v-html="user.about"></div>
+                            <p class="italic text-base">{{user.birthday !== null ? user.birthday : ''}}</p>
+                            <div class="py-2 text-justify" v-html="user.about !== null ? user.about : ''"></div>
                         </div>
                     </div>
                     <div class="sm:mt-8 mt-3">
@@ -25,7 +25,7 @@
                             <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-3 my-3">
                                 <div class="flex justify-center" v-for="item in user.holidays">
                                     <div class="no_happy">
-                                        <img class="img" :src="item.image" :alt="item.title">
+                                        <img class="img" :src="item.image !== null ? item.image : img" :alt="item.title">
                                         <Link class="btn_holly" :href="route('holiday.show', item.id)">Просмотр</Link>
                                     </div>
                                 </div>
@@ -41,6 +41,7 @@
 <script>
 import MainLayout from "@/Layouts/MainLayout.vue";
 import { Head, Link } from '@inertiajs/vue3';
+import camera from '../../../img/camera.png'
 export default {
     name: "UserShow.vue",
     components: {
@@ -49,6 +50,11 @@ export default {
         Link
     },
     props: ['user'],
+    data() {
+        return {
+            img: camera
+        }
+    }
 
 }
 </script>

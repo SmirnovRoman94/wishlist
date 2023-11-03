@@ -8,7 +8,8 @@
             </template>
             <div class="p-4 flex justify-center">
                 <div class="flex flex-col w-full relative">
-                    <img class="sm:h-[200px] h-[100px] rounded-lg relative" :src="holidayItem.image" :alt="holidayItem.title">
+                    <img v-if="holidayItem.image" class="sm:h-[200px] h-[100px] rounded-lg relative" :src="holidayItem.image" :alt="holidayItem.title">
+                    <div v-else class="sm:h-[200px] h-[100px] rounded-lg relative bg-gray-400"></div>
                     <div class="absolute sm:w-full mx-auto">
                         <div class="mb-4 px-2 flex justify-between items-center">
                             <h3 class="text-2xl text-white italic underline">{{holidayItem.title}}</h3>
@@ -28,7 +29,13 @@
                     </div>
                     <div class="sm:mb-4 px-2 mb-2">
                         <p class="text-lg text-cyan-600 ">Информация о мероприятии:</p>
-                        <p class="pt-1">{{holidayItem.description}}</p>
+                        <p class="pt-1">{{holidayItem.description !== null ? holidayItem.description : '' }}</p>
+                    </div>
+                    <div class="sm:mb-4 px-2 mb-2">
+                        <p class="text-lg text-purple-600 ">Теги:</p>
+                        <div class="flex flex-wrap">
+                            <p class="mr-2 mt-2 tag" :class="{'selected_tag': tag.select}" v-for="tag in holidayItem.tags" @click="search(tag)">#{{tag.title}}</p>
+                        </div>
                     </div>
                     <div class="wish">
                         <h5 class="sm:text-lg text-gray-500 text-center text-sm">Wish list</h5>
@@ -38,7 +45,7 @@
                         <div class="scroll sm:mt-5 mt-2" v-if="listPresents.length > 0">
                             <div v-for="(present, index) in listPresents" :key="present.id" class="item">
                                 <a :href="present.url_link" class="link">
-                                    <img :src="present.image_url" :alt="present.name" class="img_present">
+                                    <img :src="present.image_url !== null ? present.image_url : img" :alt="present.name" class="img_present">
                                     <div class="desc">
                                         <h3>Наименование:</h3>
                                         <p class="py-3 italic">{{present.name}}</p>
@@ -100,6 +107,7 @@ import MainLayout from "@/Layouts/MainLayout.vue";
 import {defineComponent} from "vue";
 import PresentModal from "@/Components/PresentModal.vue";
 import AdditingPresentModal from "@/Components/AdditingPresentModal.vue";
+import camera from '../../../img/camera.png'
 export default defineComponent({
     name: "Show.vue",
     components: {
@@ -119,7 +127,10 @@ export default defineComponent({
             itemPresent: null,
 
             openAdditingModal: false,
-            itemAdditingPresent: null
+            itemAdditingPresent: null,
+
+            tags: [],
+            img: camera
         }
      },
     methods: {
@@ -138,7 +149,8 @@ export default defineComponent({
                 title: item.name,
                 description: item.description,
                 url: item.url_link,
-                imageUrl: item.image_url
+                imageUrl: item.image_url,
+                tags: item.tags
             }
             this.openPresentModal = true;
         },
@@ -174,6 +186,34 @@ export default defineComponent({
                 .catch(err => {
                     console.log(err)
                 })
+        },
+        search(item){
+            console.log(item, this.listPresents)
+            if('select' in item){
+                if(item.select === true){
+                    item.select = false;
+                    let inx = this.tags.findIndex(el => el.id === item.id);
+                    if(inx !== -1){
+                        this.tags.splice(inx, 1)
+                    }
+                    this.filterPresents(this.tags)
+                }else{
+                    item.select = true;
+                    this.tags.push(item)
+                }
+                this.filterPresents(this.tags)
+            }else{
+                item.select = true;
+                this.tags.push(item);
+                this.filterPresents(this.tags)
+            }
+        },
+        filterPresents(tags){
+            this.listPresents = this.$page.props.holidayItem.presents.filter(function (holiday){
+                return holiday.tags.some(function (tag){
+                    return tags.some(el => tag.id === el.id)
+                })
+            })
         }
     },
 });
@@ -213,7 +253,17 @@ export default defineComponent({
     color: #3fb37f;
     transform: scale(1.05);
 }
-
+.tag {
+    color: rgb(16 185 129);
+    padding: 2px 5px;
+    border: 1px solid rgb(16 185 129);
+    cursor: pointer;
+    border-radius: 5px;
+}
+.tag.selected_tag{
+    color: #2563eb;
+    border: 1px solid #2563eb;
+}
 /* presents */
 .link {
     display: flex;

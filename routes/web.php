@@ -59,6 +59,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/presents', [\App\Http\Controllers\Present\PresentController::class, 'show'])->name('present.show');
 
 
+    Route::get('/tags', [\App\Http\Controllers\Tag\TagController::class, 'index'])->name('tag.index');
+
     Route::post('/post_images', [\App\Http\Controllers\PresentImageController::class, 'store']);
 
 });

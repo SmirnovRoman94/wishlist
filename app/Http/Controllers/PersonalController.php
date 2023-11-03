@@ -42,10 +42,12 @@ class PersonalController extends Controller
     public function usersSearch(UserSearchRequest $request)
     {
         $data = $request->validated();
-
         $user = User::where('nick',$data['nick'])->get();
-
-        return UserResource::collection($user)->resolve();
+        if(count($user) === 0){
+            return  response()->json(['data' => 0]);
+        }else{
+            return UserResource::collection($user)->resolve();
+        }
     }
 
     public function show(User $user)

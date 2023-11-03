@@ -4,6 +4,22 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <meta property="og:title" content="MyWishList">
+        <meta property="og:description" content="Создай свой список желаний и они обязательно сбудутся">
+        <meta property="og:type" content="website">
+        <meta property="og:image" content="{{asset('/img/twitter.png')}}">
+        <meta property="og:image:width" content="400">
+        <meta property="og:image:hight" content="300">
+        <meta property="og:image:url" content="http://my-wishlist.ru/">
+
+
+        <meta name="twitter:site" content="@bobross">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="MyWishList">
+        <meta name="twitter:description" content="Создай свой список желаний и они обязательно сбудутся">
+        <meta name="twitter:image" content="{{asset('/img/twitter.png')}}">
+        <meta name="twitter:url" content="http://my-wishlist.ru/">
+
         <title>Laravel</title>
 
         <!-- Fonts -->

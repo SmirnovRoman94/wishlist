@@ -94,7 +94,11 @@ export default {
                 let hourse = date.getHours() < 10  ? `0${date.getHours()}` : date.getHours();
                 let minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
                 let secundes = date.getSeconds() < 10 ? `0${date.getSeconds()}` : date.getSeconds();
-                this.dateValue[0] = `${items[2]}-${items[1]}-${items[0]}  ${hourse}:${minutes}:${secundes}`;
+                let dateTime = `${items[2]}-${items[1]}-${items[0]} ${hourse}:${minutes}:${secundes}`;
+                console.log(dateTime);
+                this.dateValue[0] = dateTime;
+
+
             }
         }
     },

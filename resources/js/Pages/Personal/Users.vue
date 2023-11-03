@@ -8,24 +8,25 @@
         <div class="sm:py-12 p-4">
             <div class="mb-4 sm:w-5/6 mx-auto sm:flex">
                 <input type="text" v-model="searchItem" class="input_item" placeholder="Введите ник (@ivan) или имя пользователя (Ivan)">
-                <button class="btn" @click="inputSearch">Поиск</button>
+                <button v-if="search == false" class="btn" @click="inputSearch">Поиск</button>
+                <button v-else class="btn" @click="clearSearch">Очистить поиск</button>
             </div>
             <div v-if="errorSearch" class="text-xs text-red-600 text-center">
                 {{ this.errorSearch }}
             </div>
 
-            <div v-if="loading === false">
+            <div v-if="loading === false" class="scroll">
                 <div v-for="user in list" :key="user.id" class="user_item" @click="getUser(user.id)">
                     <img :src="user.avatar_url" :alt="user.name">
                     <div class="ml-4">
                         <p class="text-lg">{{user.name}}</p>
                         <p class="text-gray-500 italic">{{user.nick}}</p>
-                        <p class="text-gray-500">{{user.birthday}}</p>
+                        <p class="text-gray-500">{{user.birthday === null ? '' : user.birthday}}</p>
                     </div>
                 </div>
             </div>
 
-            <div v-else class="border border-blue-300 shadow rounded-md p-4 w-5/6 w-full mx-auto">
+            <div v-else class="border border-blue-300 shadow rounded-md p-4 w-5/6 w-[80%] mx-auto">
                 <div class="animate-pulse flex space-x-4">
                     <div class="rounded-full bg-gray-300 h-10 w-10"></div>
                     <div class="flex-1 space-y-6 py-1">
@@ -59,36 +60,53 @@ export default {
         searchItem: '',
         errorSearch: '',
         list: [],
-        loading: false
+        loading: false,
+        search: false
     }),
     methods: {
         inputSearch(){
-            this.loading = true;
-            this.list = [];
-            this.errorSearch = '';
-            const words = this.searchItem.split(' ');
-            const result = words.filter(word => word.includes('@'));
-            console.log(result)
-            axios.post('/users/search', {nick: result[0]})
-                .then(res => {
-                    console.log(res.data)
-                    this.loading = false;
-                    res.data.forEach(el => this.list.push(el));
-                })
-                .catch(err => {
-                    this.loading = false;
-                    console.log(err)
-                    this.errorSearch = 'Пользователь не найден'
-                })
+            if(this.searchItem !== null && this.searchItem.length > 0){
+                this.loading = true;
+                this.search = true;
+                this.list = [];
+                this.errorSearch = '';
+                //удаляем все пробелы
+                let str = this.searchItem.replace(/\s/g, '');
+                let item = !str.includes('@') ? '@' + str : str;
+                axios.post('/users/search', {nick: item})
+                    .then(res => {
+                        if(res.data.data === 0){
+                            setTimeout(() => {this.loading = false, this.errorSearch = 'Пользователь не найден'}, 2000)
+                        }else{
+                            setTimeout(() => {this.loading = false}, 2000)
+                            res.data.forEach(el => this.list.push(el));
+                        }
+                    })
+                    .catch(err => {
+                        setTimeout(() => {this.loading = false, this.errorSearch = 'Пользователь не найден'}, 2000)
+                        console.log(err)
+                    })
+            }else{
+                this.errorSearch = 'Необходимо ввести ник или имя пользователя';
+            }
         },
         getUser(id){
             this.$inertia.get(`/users/${id}`);
+        },
+        clearSearch(){
+            this.list = [];
+            this.users.forEach(item => {
+                this.list.push(item)
+            });
+            this.errorSearch = '';
+            this.searchItem = '';
+            this.search = false;
         }
     },
     mounted() {
         this.users.forEach(item => {
             this.list.push(item)
-        })
+        });
     }
 }
 </script>
@@ -132,7 +150,10 @@ export default {
 .btn:hover{
     transform: scale(1.1);
 }
-
+.scroll{
+    max-height: 600px;
+    overflow-y: auto;
+}
 /*media*/
 @media (max-width: 800px) {
     .link{

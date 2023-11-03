@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Present;
 
+use App\Http\Resources\Tag\TagResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,6 +22,7 @@ class PresentResource extends JsonResource
             'description' => $this->description,
             'image_url' => $this->image,
             'comment' => $this->comment,
+            'tags' => isset($this->tags) ? TagResource::collection($this->tags)->resolve() : [],
             'choose_present' => $this->choose_present,
         ];
     }

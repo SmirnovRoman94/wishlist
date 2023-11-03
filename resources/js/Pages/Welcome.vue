@@ -242,11 +242,11 @@ const show = ref(false);
         margin-bottom: 10px;
     }
 }
-@media (max-width: 400px) {
+@media (max-width: 480px) {
     .form {
-        margin: 50px 20px 0px;
+        margin: 50px auto;
         flex-direction: column;
-        width: 80%;
+        width: 250px;
     }
     .btn-slice {
         margin-bottom: 10px;

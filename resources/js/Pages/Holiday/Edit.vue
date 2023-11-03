@@ -30,7 +30,7 @@
                     <div class="scroll sm:mb-4 px-2 mb-2">
                         <a href="#" @click.prevent="openModal = true" :class="['block overflow-hidden bg-gray-200 rounded-lg', !image ? 'h-40' : '']">
                             <div v-if="!image" class="flex justify-center items-center h-40">
-                                <span class="block italic text-gray-500">Добавить постер мероприятия (желательно горизонтального формата )</span>
+                                <span class="block italic text-gray-500 span_item">Добавить постер мероприятия (желательно горизонтального формата )</span>
                             </div>
                             <img v-else :src="image" alt="Постер мероприятия" class="w-full block">
                         </a>
@@ -145,7 +145,14 @@ export default defineComponent({
     height: 450px;
     overflow: auto;
 }
-
+@media (max-width: 800px) {
+    .link, .span_item{
+        font-size: 14px;
+    }
+    .span_item{
+        text-align: center;
+    }
+}
 @media (max-width: 640px) {
     label{
         font-size: 14px;

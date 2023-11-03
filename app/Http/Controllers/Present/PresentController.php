@@ -11,7 +11,9 @@ use App\Http\Resources\Holiday\HolidayResource;
 use App\Http\Resources\Present\PresentResource;
 use App\Http\Resources\Present\PresentUserResource;
 use App\Models\Present;
+use App\Models\Tag;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PresentController extends Controller
@@ -52,14 +54,40 @@ class PresentController extends Controller
     public function store(StoreRequest $request)
     {
         $data = $request->validated();
+        $tags = $data['tags'];
+        unset($data['tags']);
 
-        $present = Present::firstOrCreate([
-            'holiday_id' => $data['holiday_id'],
-            'name' => $data['title'],
-            'url_link' => $data['link'],
-            'description' => $data['description'],
-            'image' => $data['image']
-        ]);
+        try{
+            DB::beginTransaction();
+
+            $present = Present::firstOrCreate([
+                'holiday_id' => $data['holiday_id'],
+                'name' => $data['title'],
+                'url_link' => $data['link'],
+                'description' => $data['description'],
+                'image' => $data['image']
+            ]);
+
+            if(count($tags) > 0){
+                foreach ($tags as $tag){
+                    if($tag['id']!== null){
+                        $present->tags()->attach($tag['id']);
+                    }else{
+                        $itemTag = Tag::firstOrCreate([
+                            'title' => $tag['title']
+                        ]);
+                        $present->tags()->attach($itemTag->id);
+                    }
+                }
+            }
+
+            DB::commit();
+        }catch (\Exception $exception) {
+            DB::rollBack();
+            return response()->json(['error' => $exception->getMessage()]);
+        }
+
+
 
         return PresentResource::make($present)->resolve();
     }
@@ -75,15 +103,42 @@ class PresentController extends Controller
     {
         $data = $request->validated();
 
-        $present->update([
-            'id' => $present->id,
-            'holiday_id' => $data['holiday_id'],
-            'name' => $data['title'],
-            'url_link' => $data['link'],
-            'description' => $data['description'],
-            'image' => $data['image']
-        ]);
+        $tags = $data['tags'];
+        unset($data['tags']);
 
+        try{
+            DB::beginTransaction();
+
+            $present->update([
+                'id' => $present->id,
+                'holiday_id' => $data['holiday_id'],
+                'name' => $data['title'],
+                'url_link' => $data['link'],
+                'description' => $data['description'],
+                'image' => $data['image']
+            ]);
+
+            if(count($tags) > 0){
+                $arrayTags = [];
+                foreach ($tags as $tag){
+                    if($tag['id']!== null){
+                        array_push($arrayTags, $tag['id']);
+                    }else{
+                        $itemTag = Tag::firstOrCreate([
+                            'title' => $tag['title']
+                        ]);
+                        array_push($arrayTags, $itemTag->id);
+                    }
+                }
+
+                $present->tags()->sync($arrayTags);
+            }
+
+            DB::commit();
+        }catch (\Exception $exception) {
+            DB::rollBack();
+            return response()->json(['error' => $exception->getMessage()]);
+        }
 
         return PresentResource::make($present)->resolve();
 

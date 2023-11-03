@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class Holiday extends Model
 {
@@ -21,4 +22,5 @@ class Holiday extends Model
     {
         return $this->hasOne(User::class, 'id', 'id');
     }
+
 }

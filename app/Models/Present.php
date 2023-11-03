@@ -21,4 +21,9 @@ class Present extends Model
     {
         return $this->belongsToMany(User::class, 'user_presents', 'present_id', 'user_id');
     }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'tag_presents', 'present_id', 'tag_id');
+    }
 }

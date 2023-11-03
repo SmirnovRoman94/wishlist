@@ -9,7 +9,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </div>
-                <img :src="imageSrc" alt="camera" v-if="image == null">
+                <div v-if="image == null">
+                    <img :src="imageSrc" alt="camera">
+                    <div class="flex-col justify-center ">
+                        <p class="text-sm text-center text-gray-400">Загрузите изображение типа: png или jpeg.</p>
+                        <p class="text-sm text-center text-gray-400">Максимальный размер 2Мб.</p>
+                    </div>
+                </div>
                 <div v-else>
                     <Cropper
                         v-if="type == 'avatar'"
@@ -26,6 +32,9 @@
                         :src="image"
                         :default-size="{width: 400, height: 400}"
                     />
+                </div>
+                <div v-if="error" class="text-sm text-red-600 pt-2 text-center">
+                    {{error}}
                 </div>
                 <div class="button-wrapper">
                         <span class="button" @click="$refs.file.click()">
@@ -73,7 +82,9 @@ export default {
             itemHeight: null,
             margineTop: null,
 
-            imageSrc: img
+            imageSrc: img,
+
+            error: null
         }
     },
     emits: ['result', 'update:open'],
@@ -83,15 +94,28 @@ export default {
             this.margineTop = window.innerHeight < this.itemHeight ? this.itemHeight - window.innerHeight : null;
         },
         uploadImage(event) {
+            console.log(event.target.files[0]);
             let input = event.target;
             if (input.files && input.files[0]) {
-                let reader = new FileReader();
-                this.nameImage = input.files[0].name;
-                this.typeImage = input.files[0].type;
-                reader.onload = (e) => {
-                    this.image = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
+                // Проверка типа файла
+                if(input.files[0].type === "image/jpeg" || input.files[0].type === "image/png"){
+                    this.typeImage = input.files[0].type;
+                    //Проверка размера файла в мегабайтах
+                    if((input.files[0].size / 2097152) > 2){
+                        this.error = 'Загрузите файл НЕ привышающий размер 2Mb'
+                    }else{
+                        this.error = ''
+                        let reader = new FileReader();
+                        this.nameImage = input.files[0].name;
+                        this.typeImage = input.files[0].type;
+                        reader.onload = (e) => {
+                            this.image = e.target.result;
+                        };
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }else{
+                    this.error = 'Загрузите файл с расширением типа jpeg или png'
+                }
             }
         },
         cropImage() {

@@ -24,7 +24,7 @@
                             <h3 class="sm:text-lg underline text-emerald-500 text-base">Подарки:</h3>
                             <div>
                                 <a :href="item.url_link" class="link">
-                                    <img :src="item.image_url" :alt="item.name" class="img_present">
+                                    <img :src="item.image_url == null ? img : item.image_url" :alt="item.name" class="img_present">
                                     <div class="desc">
                                         <h3 class="sm:text-lg text-base">Наименование:</h3>
                                         <p class="py-3 italic sm:text-base text-sm">{{item.name}}</p>
@@ -48,6 +48,7 @@
 <script>
 import { Head, Link } from '@inertiajs/vue3';
 import MainLayout from "@/Layouts/MainLayout.vue";
+import camera from '../../../img/camera.png'
 export default {
     name: "Show.vue",
     components: {
@@ -55,7 +56,12 @@ export default {
         Link,
         MainLayout
     },
-    props: ['presentsItems']
+    props: ['presentsItems'],
+    data() {
+        return {
+            img: camera
+        }
+}
 }
 </script>
 
