@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('presents', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('url_link');
+            $table->text('url_link');
             $table->string('description')->nullable();
-            $table->text('image')->nullable();
+            $table->longText('image')->nullable();
             $table->text('comment')->nullable();
             $table->foreignId('holiday_id')->index()->constrained('holidays')->onDelete('cascade');
             $table->boolean('choose_present')->default(false);

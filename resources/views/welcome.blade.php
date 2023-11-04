@@ -10,8 +10,8 @@
         <meta property="og:image" content="{{asset('/img/twitter.png')}}">
         <meta property="og:image:width" content="400">
         <meta property="og:image:hight" content="300">
-        <meta property="og:image:url" content="http://my-wishlist.ru/">
-
+        <meta property="og:url" content="http://my-wishlist.ru/">
+	<meta property="og:locale" content="ru_RU" />
 
         <meta name="twitter:site" content="@bobross">
         <meta name="twitter:card" content="summary_large_image">
@@ -21,6 +21,8 @@
         <meta name="twitter:url" content="http://my-wishlist.ru/">
 
         <title>Laravel</title>
+	<meta name="google-site-verification" content="PLyD9sJtBzMQwVbaXt0QspRu7n4tSyharXhGXbALp1k" />
+	<meta name="yandex-verification" content="6e05c28d5bddf5f7" />
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

@@ -142,6 +142,7 @@ export default {
             this.$emit('update:open', false)
         },
         async fetchOpenGraphData() {
+	    this.errorGraph = '';
             this.loading = true;
             await axios.post(`/present/create_link`, {
                 link: this.url
@@ -273,6 +274,7 @@ export default {
                 this.errorStore = null
                 this.editId = null
                 this.tagItem = ''
+		this.tags = []
             }else{
                 this.getAllTags()
             }
@@ -437,7 +439,7 @@ ul {
     .dialog{
         top: 10%;
     }
-    label, .btn_tag {
+    label, .btn_tag, .item_tag {
         font-size: 14px;
     }
 }

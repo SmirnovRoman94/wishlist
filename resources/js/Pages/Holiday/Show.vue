@@ -34,7 +34,7 @@
                     <div class="sm:mb-4 px-2 mb-2">
                         <p class="text-lg text-purple-600 ">Теги:</p>
                         <div class="flex flex-wrap">
-                            <p class="mr-2 mt-2 tag" :class="{'selected_tag': tag.select}" v-for="tag in holidayItem.tags" @click="search(tag)">#{{tag.title}}</p>
+                            <p class="mr-2 mt-2 tag" :class="{'selected_tag': tag.select}" v-for="tag in tagsAll" @click="search(tag)">#{{tag.title}}</p>
                         </div>
                     </div>
                     <div class="wish">
@@ -42,8 +42,8 @@
                         <div class="mt-2" v-if="holidayItem.user_id === $page.props.auth.user.id">
                             <button class="btn" @click="openPresentModal = true">Добавить подарок</button>
                         </div>
-                        <div class="scroll sm:mt-5 mt-2" v-if="listPresents.length > 0">
-                            <div v-for="(present, index) in listPresents" :key="present.id" class="item">
+                        <div class="scroll sm:mt-5 mt-2" v-if="filtredArr.length > 0">
+                            <div v-for="(present, index) in filtredArr" :key="present.id" class="item">
                                 <a :href="present.url_link" class="link">
                                     <img :src="present.image_url !== null ? present.image_url : img" :alt="present.name" class="img_present">
                                     <div class="desc">
@@ -123,23 +123,43 @@ export default defineComponent({
      data() {
         return {
             listPresents: this.$page.props.holidayItem.presents,
+	    filtredArr: [],
             openPresentModal: false,
             itemPresent: null,
 
             openAdditingModal: false,
             itemAdditingPresent: null,
-
+	    
+	    tagsAll: [],
             tags: [],
             img: camera
         }
      },
     methods: {
         resultItem(item) {
+	    let vm = this;
             this.listPresents.push(item);
+	    item.tags.forEach(function (elTag) {
+                let found = vm.tagsAll.some(function (tag) {
+                    return elTag.id === tag.id;
+                });
+                if(!found){
+                    vm.tagsAll.push(elTag)
+                }
+            })
             this.openPresentModal = false;
         },
         updateItem(item){
+	    let vm = this;
             this.listPresents = this.listPresents.map(el => el.id === item.id ? item : el);
+	    item.tags.forEach(function (elTag) {
+                let found = vm.tagsAll.some(function (tag) {
+                    return elTag.id === tag.id;
+                });
+                if(!found){
+                    vm.tagsAll.push(elTag)
+                }
+            })
             this.openPresentModal = false;
         },
         editPresent(item) {
@@ -209,16 +229,35 @@ export default defineComponent({
             }
         },
         filterPresents(tags){
-            this.listPresents = this.$page.props.holidayItem.presents.filter(function (holiday){
-                return holiday.tags.some(function (tag){
-                    return tags.some(el => tag.id === el.id)
-                })
-            })
+	    if(tags.length === 0){
+	    	this.filtredArr = this.$page.props.holidayItem.presents	
+            }else{
+                this.filtredArr = this.$page.props.holidayItem.presents.filter(function (holiday){
+                    return holiday.tags.some(function (tag){
+                        return tags.some(el => tag.id === el.id)
+                 })
+              })
+	   }
         }
     },
+    mounted() {
+        if(this.holidayItem.tags.length !== 0){
+            this.holidayItem.tags.forEach(el => {
+                this.tagsAll.push(el)
+            })
+        }
+	this.filterPresents(this.tags);
+    },
+    watch: {
+        listPresents: {
+            handler:function (val){
+                console.log(val)
+                this.filterPresents(this.tags);
+            },deep:true
+        }
+    }
 });
 </script>
-
 <style scoped>
 .wish {
     border-radius: 10px;
@@ -313,7 +352,7 @@ export default defineComponent({
     overflow-y: auto;
 }
 @media (max-width: 800px) {
-    .link_item, .btn, .btn_item {
+    .link_item, .btn, .btn_item, .tag {
         font-size: 14px;
     }
     .btn_item{
