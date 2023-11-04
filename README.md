@@ -1,1 +1,3 @@
-https://github.com/SmirnovRoman94/wishlist/issues/1#issue-1977361622
+ ```
+ ![Описание изображения](https://github.com/SmirnovRoman94/wishlist/issues/1#issue-1977361622)
+ ```
